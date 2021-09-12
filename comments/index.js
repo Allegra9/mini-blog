@@ -1,8 +1,10 @@
 const express = require('express')
 const { randomBytes } = require('crypto')
+const cors = require('cors')
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 // no database for this example project, will store in memory here:
 const commentsByPostId = {}
@@ -21,7 +23,7 @@ app.post('/posts/:id/comments', (req, res) => {
   const postId = req.params.id
 
   const comments = commentsByPostId[postId] || []
-  comments.push({ commentId, content })
+  comments.push({ id: commentId, content })
   commentsByPostId[postId] = comments
 
   res.status(201).send(comments)

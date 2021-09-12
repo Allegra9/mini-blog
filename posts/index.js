@@ -1,8 +1,10 @@
 const express = require('express')
 const { randomBytes } = require('crypto')
+const cors = require('cors')
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 // no database for this example project, will store in memory here:
 const posts = {}
@@ -16,7 +18,8 @@ app.post('/posts', (req, res) => {
   const { title } = req.body
 
   posts[id] = {
-    id, title
+    id,
+    title
   }
 
   res.status(201).send(posts[id])
