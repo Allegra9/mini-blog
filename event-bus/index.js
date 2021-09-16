@@ -13,7 +13,7 @@ app.post('/events', (req, res) => {
 
   sendEvent('http://localhost:4000/events', event)
   sendEvent('http://localhost:4001/events', event)
-  // makeRequest('http://localhost:4002/events', event)
+  sendEvent('http://localhost:4002/events', event)
 
   res.send({ status: 'OK' })
 })
