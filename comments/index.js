@@ -24,25 +24,37 @@ app.post('/posts/:id/comments', async (req, res) => {
   const postId = req.params.id
 
   const comments = commentsByPostId[postId] || []
-  comments.push({ id: commentId, content })
+  const data = { id: commentId, content, state: 'pending' }
+  if (!content) return
+  comments.push(data)
   commentsByPostId[postId] = comments
 
   // emit to event broker:
   await axios.post('http://localhost:4005/events', {
     type: 'CommentCreated',
-    data: {
-      id: commentId,
-      postId,
-      content
-    }
+    data: { ...data, postId }
   })
 
   res.status(201).send(comments)
 })
 
 // will receive events from event bus
-app.post('/events', (req, res) => {
+app.post('/events', async (req, res) => {
+  const { type, data } = req.body
   console.log('received:', req.body.type)
+
+  if (type === 'CommentModerated') {
+    const { id, postId, state } = data
+    const comments = commentsByPostId[postId]
+    const comment = comments.find(comment => comment.id === id)
+    comment.state = state
+
+    // emit to event broker:
+    await axios.post('http://localhost:4005/events', {
+      type: 'CommentUpdated',
+      data
+    })
+  }
 
   res.send({})
 })
