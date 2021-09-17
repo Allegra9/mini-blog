@@ -1,30 +1,12 @@
 const express = require('express')
 const cors = require('cors')
+const axios = require('axios')
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
-// no database for this example project, will store in memory here:
-const posts = {}
-// {
-//   '12gnj4': {
-//     id: '12gnj4',
-//     title: 'fddd',
-//     comments: [
-//       { id: 1, content: "lal" }
-//     ]
-//   }
-// }
-
-app.get('/posts', (req, res) => {
-  res.send(posts)
-})
-
-// will receive events from event bus
-app.post('/events', (req, res) => {
-  const { type, data } = req.body
-
+const handleEvent = (type, data) => {
   if (type === 'PostCreated') {
     const { id, title } = data
 
@@ -48,12 +30,47 @@ app.post('/events', (req, res) => {
     comment.state = state
     comment.content = content
   }
+}
 
-  console.log(posts)
+// no database for this example project, will store in memory here:
+const posts = {}
+// {
+//   '12gnj4': {
+//     id: '12gnj4',
+//     title: 'fddd',
+//     comments: [
+//       { id: 1, content: "lal" }
+//     ]
+//   }
+// }
+
+app.get('/posts', (req, res) => {
+  res.send(posts)
+})
+
+// will receive events from event bus
+app.post('/events', (req, res) => {
+  const { type, data } = req.body
+  handleEvent(type, data)
+
   res.send({})
 })
 
 const PORT = 4002
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Listening on ${PORT}`)
+
+  try {
+    // get all events from event bus and process them:
+    const res = await axios.get('http://localhost:4005/events')
+
+    for (let event of res.data) {
+      const { type, data } = event
+      console.log('Processing event:', type)
+
+      handleEvent(type, data)
+    }
+  } catch (error) {
+    console.log(error.message)
+  }
 })
