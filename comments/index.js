@@ -30,7 +30,7 @@ app.post('/posts/:id/comments', async (req, res) => {
   commentsByPostId[postId] = comments
 
   // emit to event broker:
-  await axios.post('http://localhost:4005/events', {
+  await axios.post('http://event-bus-srv:4005/events', {
     type: 'CommentCreated',
     data: { ...data, postId }
   })
@@ -50,7 +50,7 @@ app.post('/events', async (req, res) => {
     comment.state = state
 
     // emit to event broker:
-    await axios.post('http://localhost:4005/events', {
+    await axios.post('http://event-bus-srv:4005/events', {
       type: 'CommentUpdated',
       data
     })

@@ -15,10 +15,10 @@ app.post('/events', (req, res) => {
 
   events.push(event)
 
-  sendEvent('http://localhost:4000/events', event)
-  sendEvent('http://localhost:4001/events', event)
-  sendEvent('http://localhost:4002/events', event)
-  sendEvent('http://localhost:4003/events', event)
+  sendEvent('http://posts-clusterip-srv:4000/events', event)
+  sendEvent('http://comments-srv:4001/events', event)
+  sendEvent('http://query-srv:4002/events', event)
+  sendEvent('http://moderation-srv:4003/events', event)
 
   res.send({ status: 'OK' })
 })
